@@ -3,36 +3,36 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 50vh;
     background-color: #5b5b5b;
 }
 
 .container {
     background-color: #bcbcbc;
-    padding: 80px;
+    padding: 40px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 70px;
+    margin-bottom: 1px;
   font-family: "stencil"
   
 }
 
 .input-group, .result {
-    margin-bottom: 15px;
+    margin-bottom: 1px;
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 1px;
 }
 
 input[type="number"] {
-    width: 100%;
-    padding: 10px;
+    width: 20%;
+    padding: 1px;
     border: 1px solid #ddd;
     border-radius: 3px;
     box-sizing: border-box;
@@ -41,7 +41,7 @@ input[type="number"] {
 .currency-inputs {
     display: grid;
     grid-template-columns: repeat(1, 1fr); /* yksi sarake: nimi, määrä, summa */
-    gap: 10px;
+    gap: 5px;
 }
 
 .currency-input {
@@ -62,22 +62,22 @@ input[type="number"] {
 button {
     background-color: #007bff;
     color: #fff;
-    padding: 10px 20px;
+    padding: 5px 10px;
     border: none;
     border-radius: 3px;
     cursor: pointer;
 }
 
 .results {
-    margin-top: 20px;
+    margin-top: 1px;
     border-top: 1px solid #ddd;
-    padding-top: 20px;
+    padding-top: 1px;
 }
 
 .result {
     display: solid;
     justify-content: space-between;
-    font-size: 18px;
+    font-size: 17px;
   
 }
 .logo {
@@ -93,7 +93,7 @@ button {
 }
 .footer {
   text-align: center; /* Keskitä teksti */
-  margin-top: 20px; /* Lisää tilaa yläpuolelle */
+  margin-top: 10px; /* Lisää tilaa yläpuolelle */
   font-size: 0.8em; /* Pienennä fonttikokoa */
   color: #888; /* Vaaleampi tekstin väri */
 }
