@@ -1,0 +1,105 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #5b5b5b;
+}
+
+.container {
+    background-color: #bcbcbc;
+    padding: 80px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 70px;
+  font-family: "stencil"
+  
+}
+
+.input-group, .result {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.currency-inputs {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr); /* yksi sarake: nimi, määrä, summa */
+    gap: 10px;
+}
+
+.currency-input {
+    display: flex;
+    align-items: center;
+}
+
+.currency-input input {
+    width: 60px;
+    margin-left: 10px;
+}
+
+.currency-input span {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.results {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.result {
+    display: solid;
+    justify-content: space-between;
+    font-size: 18px;
+  
+}
+.logo {
+    font-size: 2em; /* Tai haluamasi koko */
+    font-weight: bold;
+  color: #cc0000;
+   font-style: italic;
+   text-decoration: underline;
+}
+
+.subheading {
+    font-size: 1.2em; /* Tai haluamasi koko */
+}
+.footer {
+  text-align: center; /* Keskitä teksti */
+  margin-top: 20px; /* Lisää tilaa yläpuolelle */
+  font-size: 0.8em; /* Pienennä fonttikokoa */
+  color: #888; /* Vaaleampi tekstin väri */
+}
+.lahjakortit {
+  margin-left: 400px;
+  margin-top: -45px;
+  /* Lisää tilaa
+  vasemmalle */
+}

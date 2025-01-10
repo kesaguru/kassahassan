@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kassanlaskuri</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>
+    <span class="logo">KassaHassan 2.0</span><br>
+    <span class="subheading">Kassanlaskuri</span>
+</h1>
+      
+        <div class="input-group">
+            <label for="pohjakassa">Valitse pohjakassan suuruus tai syötä käsin:</label>
+           <div class="pohjakassa-buttons">
+            <button id="pohjakassa500">500€</button>
+            <button id="pohjakassa300">300€</button>
+        </div>
+            <input type="number" id="pohjakassa" value="0">
+        </div>
+
+        <h2>Setelit ja kolikot:</h2>
+        <div class="currency-inputs">
+            </div>
+
+        <button id="laske">Laske summa</button>
+
+       <div class="results">
+    <div class="result">
+        <p>Yhteissumma:</p>
+        <span id="yhteissumma">0 €</span>
+        <button id="kopioiYhteissumma">Kopioi</button> <div> 
+    </div>
+    <div class="result">
+        <p>Loomikseen menee:</p>
+        <span id="loomikseen">0 €</span>
+    </div>
+    <button onclick="window.open('https://digiapp.loomis.fi/webservice/loginForm', '_blank')">Avaa Loomis verkkosivu</button> <div> 
+</div>
+        
+    <script src="script.js"></script>
+         
+ <div class="results">
+    </div>
+    <button onclick="window.open('https://digiapp.loomis.fi/webservice/loginForm', '_blank')">Loomikseen</button>
+    <div class="lahjakortit" id="lahjakortit-osio" style="display: none;"> 
+        <label for="lahjakortit-input">Tilitettävät lahjakortit:</label>
+        <input type="text" id="lahjakortit-input" maxlength="8">
+    </div>
+    <button id="naytaLahjakortit">Lisää</button> 
+</div>
+
+         <div class="footer">
+  <label>Versio 2.0 (c) 2025 - Koodi: N.Pitkanen + Google Gemini AI 1.5 Pro</label>
+</div> 
+</body>
+</html>
