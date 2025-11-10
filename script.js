@@ -1,7 +1,7 @@
 const pohjakassaInput = document.getElementById('pohjakassa');
 const currencyInputsContainer = document.querySelector('.currency-inputs');
 const yhteissummaSpan = document.getElementById('yhteissumma');
-const loomikseenSpan = document.getElementById('loomikseen');
+// HUOM: Ei enää globaalina const loomikseenSpan
 const laskeButton = document.getElementById('laske');
 
 // Valuuttadata ilman rullia
@@ -109,10 +109,10 @@ laskeButton.addEventListener('click', () => {
 function updateSums() {
   const currencyInputs = document.querySelectorAll('.currency-input');
   currencyInputs.forEach(input => {
-    let amount = parseInt(input.querySelector('input').value);
+    let amount = parseInt(input.querySelector('input').value, 10);
 
     // Tarkista negatiiviset arvot
-    if (amount < 0) {
+    if (isNaN(amount) || amount < 0) {
       amount = 0;
       input.querySelector('input').value = 0;
     }
@@ -127,15 +127,17 @@ function calculateTotal() {
   let total = 0;
   const currencyInputs = document.querySelectorAll('.currency-input');
   currencyInputs.forEach(input => {
-    const amount = parseInt(input.querySelector('input').value);
+    const amount = parseInt(input.querySelector('input').value, 10) || 0;
     const value = parseFloat(input.querySelector('input').dataset.value);
     total += amount * value;
   });
 
-  let pohjakassa = parseFloat(pohjakassaInput.value);
+  let pohjakassa = parseFloat(
+    (pohjakassaInput.value || '0').toString().replace(',', '.')
+  );
 
   // Tarkista negatiivinen pohjakassa
-  if (pohjakassa < 0) {
+  if (isNaN(pohjakassa) || pohjakassa < 0) {
     pohjakassa = 0;
     pohjakassaInput.value = 0;
   }
@@ -143,22 +145,41 @@ function calculateTotal() {
   const loomikseen = total - pohjakassa;
 
   yhteissummaSpan.textContent = `${total.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
-  loomikseenSpan.textContent = `${loomikseen.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+
+  // Haetaan aina uusin span, ei käytetä vanhaa viitettä
+  const loomikseenSpan = document.getElementById('loomikseen');
+  if (loomikseenSpan) {
+    loomikseenSpan.textContent = `${loomikseen.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+  }
 
   calculateChange();
 }
 
 function calculateChange() {
-  // Poista kaikki muut merkit kuin numerot ja pilkku
-  const loomikseen = parseFloat(loomikseenSpan.textContent.replace(/[^0-9,]/g, '').replace(',', '.')); 
+  // Luetaan loomikseen-summa spanista ja parsitaan numeroksi
+  const loomikseenText = document.getElementById('loomikseen').textContent;
+  let loomikseen = parseFloat(
+    loomikseenText.replace(/[^0-9,]/g, '').replace(',', '.')
+  );
+
+  // Pyöristetään sentin tarkkuuteen, jotta liukulukubugit poistuvat
+  loomikseen = Math.round((loomikseen || 0) * 100) / 100;
+
   let remainingAmount = loomikseen;
   const change = {};
 
   for (const currency of currencyData) {
     const inputElement = document.getElementById(currency.name);
-    const amount = parseInt(inputElement.value);
+    const amount = parseInt(inputElement.value, 10) || 0;
 
-    const maxAmount = Math.min(amount, Math.floor(remainingAmount / currency.value));
+    // Pidetään remainingAmount aina sentin tarkkuudella
+    remainingAmount = Math.round(remainingAmount * 100) / 100;
+
+    // Pieni "turvamarginaali" estää 0.8999999 / 0.1 → 8 -tilanteen
+    const maxAmount = Math.min(
+      amount,
+      Math.floor((remainingAmount + 1e-9) / currency.value)
+    );
 
     if (maxAmount > 0) {
       change[currency.name] = maxAmount;
@@ -174,5 +195,11 @@ function calculateChange() {
   }
 
   const loomikseenDiv = document.getElementById('loomikseen').parentElement;
-  loomikseenDiv.innerHTML = `<p>Loomikseen menee:</p><span id="loomikseen">${loomikseen.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span><p>${changeText}</p>`;
+  loomikseenDiv.innerHTML = `
+    <p>Loomikseen menee:</p>
+    <span id="loomikseen">
+      ${loomikseen.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+    </span>
+    <p>${changeText}</p>
+  `;
 }
