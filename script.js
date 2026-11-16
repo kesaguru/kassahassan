@@ -105,7 +105,6 @@
   }
   autoCursor.addEventListener('change', () => {
     cancelAdvance();
-    byId('auto-cursor-hint').hidden = !autoCursor.checked;
     if (autoCursor.checked) {
       const firstEmpty = Array.from(fields.values()).find(({ input }) => !input.value.trim());
       (firstEmpty || fields.values().next().value).input.focus();

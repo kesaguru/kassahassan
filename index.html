@@ -6,12 +6,12 @@
   <meta name="theme-color" content="#292d32">
   <meta name="description" content="KassaHassanin helppo kassanlaskuri. Laske setelit, kolikot ja kolikkorullat sekä pohjakassan jälkeen tilitettävä summa.">
   <title>KassaHassan – Kassanlaskuri</title>
-  <link rel="icon" href="favicon.ico?v=3.3" sizes="16x16 32x32 48x48 64x64">
-  <link rel="icon" type="image/png" href="assets/favicon.png?v=3.3" sizes="64x64">
+  <link rel="icon" href="favicon.ico?v=3.4" sizes="16x16 32x32 48x48 64x64">
+  <link rel="icon" type="image/png" href="assets/favicon.png?v=3.4" sizes="64x64">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=3.3">
-  <script src="calculator.js?v=3.3" defer></script>
-  <script src="script.js?v=3.3" defer></script>
+  <link rel="stylesheet" href="style.css?v=3.4">
+  <script src="calculator.js?v=3.4" defer></script>
+  <script src="script.js?v=3.4" defer></script>
 </head>
 <body>
   <div class="app">
@@ -19,13 +19,12 @@
       <h1><img class="hassan-mascot" src="assets/apple-touch-icon.png" alt="" width="180" height="180"><span class="sr-only">KassaHassan.com – Kassanlaskuri</span><span class="logo-frame" aria-hidden="true"><img src="assets/kassahassan-logo.webp" alt="" width="2176" height="724"></span></h1>
     </header>
     <main>
-      <div class="page-heading" style="justify-content:flex-end"><button class="button button-quiet" id="tyhjenna" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5m4-5v5"/></svg>Tyhjennä</button></div>
           <section class="card base-card" aria-labelledby="base-title"><div class="card-heading"><div><h3 id="base-title">Pohjakassa</h3></div></div><p class="section-hint" id="base-hint">Kassaan jätettävä summa.</p><div class="base-controls"><div class="presets"><button type="button" id="pohjakassa300" data-base="300" aria-pressed="false">300 €</button><button type="button" id="pohjakassa500" data-base="500" aria-pressed="false">500 €</button></div><label class="sr-only" for="pohjakassa">Pohjakassan suuruus euroina</label><div class="money-input"><input id="pohjakassa" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off" aria-describedby="base-hint base-error"><span aria-hidden="true">€</span></div></div><p class="field-error" id="base-error" hidden>Syötä positiivinen euromäärä, enintään kaksi desimaalia.</p></section>
-      <div class="auto-cursor-control"><label for="automaattikursori"><input type="checkbox" id="automaattikursori" aria-describedby="auto-cursor-hint"><span>Automaattikursori</span></label><p id="auto-cursor-hint" hidden>Siirtyy seuraavaan kirjoitustauon jälkeen. 0 ohittaa rivin, Enter siirtyy heti.</p></div>
+      <div class="auto-cursor-control"><label for="automaattikursori"><input type="checkbox" id="automaattikursori" aria-describedby="auto-cursor-hint"><span>Automaattikursori</span></label><span class="auto-cursor-help" id="auto-cursor-hint">1,2 s tauko siirtää seuraavaan kenttään. 0 ohittaa rivin, Enter siirtyy heti.</span></div>
       <div class="workspace">
         <div class="counting-area">
           <section class="card cash-card" aria-labelledby="cash-title">
-            <div class="card-heading"><div><h3 id="cash-title">Setelit ja kolikot</h3></div><span class="live-badge"><span></span>Laskee lennosta</span></div>
+            <div class="card-heading"><div><h3 id="cash-title">Setelit ja kolikot</h3></div><div class="cash-actions"><button class="button button-quiet" id="tyhjenna" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5m4-5v5"/></svg>Tyhjennä</button><span class="live-badge"><span></span>Laskee lennosta</span></div></div>
             <div class="cash-columns">
               <section aria-labelledby="notes-title"><div class="group-heading"><h4 id="notes-title">Setelit</h4><span id="notes-total">0,00 €</span></div><div class="table-heading" aria-hidden="true"><span>Arvo</span><span>Kpl</span><span>Yhteensä</span></div><div id="notes-inputs"></div></section>
               <section aria-labelledby="coins-title"><div class="group-heading"><h4 id="coins-title">Kolikot</h4><span id="coins-total">0,00 €</span></div><div class="table-heading" aria-hidden="true"><span>Arvo</span><span>Kpl</span><span>Yhteensä</span></div><div id="coins-inputs"></div></section>
@@ -39,7 +38,7 @@
         </aside>
       </div>
     </main>
-    <footer><span>© 2025–2026 KassaHassan.com</span><span>N. Pitkänen & ChatGPT <span class="footer-divider">/</span> Versio 3.3</span></footer>
+    <footer><span>© 2025–2026 KassaHassan.com</span><span>N. Pitkänen & ChatGPT <span class="footer-divider">/</span> Versio 3.4</span></footer>
   </div>
   <dialog id="reset-dialog" aria-labelledby="reset-title"><form method="dialog"><h2 id="reset-title">Tyhjennetäänkö laskuri?</h2><p>Syötetyt määrät, pohjakassa ja lahjakorttien kuittaus tyhjennetään.</p><div class="dialog-actions"><button class="button button-quiet" value="cancel" autofocus>Peruuta</button><button class="button button-primary" value="reset">Tyhjennä laskuri</button></div></form></dialog>
 </body>
