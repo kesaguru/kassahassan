@@ -1,205 +1,162 @@
-const pohjakassaInput = document.getElementById('pohjakassa');
-const currencyInputsContainer = document.querySelector('.currency-inputs');
-const yhteissummaSpan = document.getElementById('yhteissumma');
-// HUOM: Ei enää globaalina const loomikseenSpan
-const laskeButton = document.getElementById('laske');
+(function () {
+  'use strict';
+  const calc = window.KassaCalculator;
+  const byId = id => document.getElementById(id);
+  const baseInput = byId('pohjakassa');
+  const status = byId('action-status');
+  const resetDialog = byId('reset-dialog');
+  const fields = new Map();
+  let currentTotal = 0;
+  let statusTimer;
+  let revision = 0;
+  const targets = { notes: byId('notes-inputs'), coins: byId('coins-inputs'), rolls: byId('roll-inputs') };
 
-// Valuuttadata ilman rullia
-const currencyData = [
-  { name: '500€ seteli', value: 500 },
-  { name: '200€ seteli', value: 200 },
-  { name: '100€ seteli', value: 100 },
-  { name: '50€ seteli', value: 50 },
-  { name: '20€ seteli', value: 20 },
-  { name: '10€ seteli', value: 10 },
-  { name: '5€ seteli', value: 5 },
-  { name: '2€ kolikko', value: 2 },
-  { name: '1€ kolikko', value: 1 },
-  { name: '50 sentin kolikko', value: 0.5 },
-  { name: '20 sentin kolikko', value: 0.2 },
-  { name: '10 sentin kolikko', value: 0.1 },
-  { name: '5 sentin kolikko', value: 0.05 },
-];
-
-// Rullat omana taulukkonaan
-const rullatData = [
-  { name: '2€ rullat (50€)', value: 50 },
-  { name: '1€ rullat (25€)', value: 25 },
-  { name: '50snt rullat (20€)', value: 20 },
-  { name: '20snt rullat (8€)', value: 8 },
-  { name: '10snt rullat (4€)', value: 4 },
-  { name: '5snt rullat (2.5€)', value: 2.5 }
-];
-
-// Järjestä valuuttadata arvon mukaan laskevasti
-currencyData.sort((a, b) => b.value - a.value);
-rullatData.sort((a, b) => b.value - a.value);
-
-// Luo syöttökentät setelien ja kolikoiden määrille
-currencyData.forEach(currency => {
-  createCurrencyInput(currency);
-});
-
-// Luo syöttökentät rullien määrille
-rullatData.forEach(rulla => {
-  createCurrencyInput(rulla);
-});
-
-// Pohjakassa-painikkeiden tapahtumankäsittelijät
-const pohjakassa500Button = document.getElementById('pohjakassa500');
-const pohjakassa300Button = document.getElementById('pohjakassa300');
-
-pohjakassa500Button.addEventListener('click', () => {
-  pohjakassaInput.value = 500;
-});
-
-pohjakassa300Button.addEventListener('click', () => {
-  pohjakassaInput.value = 300;
-});
-
-// Lisää-painikkeen tapahtumankäsittelijä
-const naytaLahjakortitButton = document.getElementById('naytaLahjakortit');
-const lahjakortitOsio = document.getElementById('lahjakortit-osio');
-
-naytaLahjakortitButton.addEventListener('click', () => {
-  if (lahjakortitOsio.style.display === 'none') {
-    lahjakortitOsio.style.display = 'block';
-    naytaLahjakortitButton.textContent = 'Piilota';
-  } else {
-    lahjakortitOsio.style.display = 'none';
-    naytaLahjakortitButton.textContent = 'Lisää';
-  }
-});
-
-// Kopioi-painikkeen tapahtumankäsittelijä
-const kopioiYhteissummaButton = document.getElementById('kopioiYhteissumma');
-
-kopioiYhteissummaButton.addEventListener('click', () => {
-  const yhteissumma = yhteissummaSpan.textContent.replace(' €', '');
-  navigator.clipboard.writeText(yhteissumma)
-    .then(() => {
-      console.log('Yhteissumma kopioitu leikepöydälle:', yhteissumma);
-    })
-    .catch(err => {
-      console.error('Kopiointi epäonnistui:', err);
+  for (const item of calc.denominations) {
+    const row = document.createElement('div');
+    row.className = 'currency-row' + (item.group === 'rolls' ? ' roll-row' : '');
+    const label = document.createElement('label');
+    label.htmlFor = item.id;
+    label.className = 'currency-label';
+    if (item.group !== 'rolls') {
+      const mark = document.createElement('span');
+      mark.className = 'currency-mark' + (item.group === 'coins' ? ' coin' : '');
+      mark.setAttribute('aria-hidden', 'true');
+      mark.textContent = item.group === 'notes' ? '€' : '';
+      if (item.color) { mark.style.setProperty('--note', item.color); mark.style.setProperty('--tint', item.tint); }
+      label.append(mark);
+    }
+    const value = document.createElement('span');
+    value.className = 'denomination' + (item.group === 'rolls' ? ' roll-label' : '');
+    value.textContent = item.label;
+    if (item.contents) { const small = document.createElement('small'); small.textContent = item.contents; value.append(small); }
+    label.append(value);
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.inputMode = 'numeric';
+    input.id = item.id;
+    input.className = 'quantity';
+    input.placeholder = '0';
+    input.autocomplete = 'off';
+    input.setAttribute('aria-label', `${item.name}, kappalemäärä`);
+    input.setAttribute('aria-invalid', 'false');
+    input.title = 'Kokonainen kappalemäärä, 0–999 999';
+    const total = document.createElement('span');
+    total.className = 'row-total';
+    total.textContent = calc.money(0);
+    row.append(label, input, total);
+    targets[item.group].append(row);
+    fields.set(item.id, { input, row, total });
+    input.addEventListener('input', update);
+    input.addEventListener('focus', () => { if (calc.parseCount(input.value) === 0) input.value = ''; });
+    input.addEventListener('blur', () => {
+      const value = calc.parseCount(input.value);
+      if (value !== null) input.value = value === 0 ? '' : String(value);
     });
-});
-
-function createCurrencyInput(currency) {
-  const currencyInput = `
-        <div class="currency-input">
-            <label for="${currency.name}">${currency.name}:</label>
-            <input type="number" id="${currency.name}" value="0" data-value="${currency.value}" min="0"> 
-            <span>0 €</span>
-        </div>
-    `;
-  currencyInputsContainer.innerHTML += currencyInput;
-}
-
-// Päivitä summat syöttökenttien muuttuessa
-currencyInputsContainer.addEventListener('input', () => {
-  updateSums();
-});
-
-// Laske yhteissumma ja "Loomikseen menee" -summa
-laskeButton.addEventListener('click', () => {
-  calculateTotal();
-});
-
-function updateSums() {
-  const currencyInputs = document.querySelectorAll('.currency-input');
-  currencyInputs.forEach(input => {
-    let amount = parseInt(input.querySelector('input').value, 10);
-
-    // Tarkista negatiiviset arvot
-    if (isNaN(amount) || amount < 0) {
-      amount = 0;
-      input.querySelector('input').value = 0;
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const inputs = Array.from(fields.values()).map(field => field.input);
+        const next = inputs[inputs.indexOf(input) + 1];
+        if (next) next.focus(); else byId('laske').focus();
+      }
+    });
+  }
+  function announce(message) {
+    clearTimeout(statusTimer);
+    status.textContent = message;
+    statusTimer = setTimeout(() => { status.textContent = ''; }, 4500);
+  }
+  function update() {
+    revision++;
+    clearTimeout(statusTimer);
+    status.textContent = '';
+    const counts = {};
+    let invalidCount = false;
+    for (const item of calc.denominations) {
+      const field = fields.get(item.id);
+      const count = calc.parseCount(field.input.value);
+      field.input.setAttribute('aria-invalid', String(count === null));
+      field.input.setCustomValidity(count === null ? 'Syötä kokonainen kappalemäärä väliltä 0–999 999.' : '');
+      field.row.classList.toggle('has-value', count > 0);
+      field.total.textContent = count === null ? '—' : calc.money(count * item.cents);
+      invalidCount ||= count === null;
+      counts[item.id] = count || 0;
     }
-
-    const value = parseFloat(input.querySelector('input').dataset.value);
-    const sum = amount * value;
-    input.querySelector('span').textContent = `${sum.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+    const base = calc.parseMoney(baseInput.value);
+    baseInput.setAttribute('aria-invalid', String(base === null));
+    baseInput.setCustomValidity(base === null ? 'Syötä euromäärä, esimerkiksi 300 tai 300,50. Enimmäissumma on 9 999 999,99 €.' : '');
+    byId('base-error').hidden = base !== null;
+    for (const button of document.querySelectorAll('[data-base]')) button.setAttribute('aria-pressed', String(base === Number(button.dataset.base) * 100));
+    const result = calc.totals(counts, base || 0);
+    for (const group of ['notes', 'coins', 'rolls']) {
+      const invalid = calc.denominations.some(item => item.group === group && fields.get(item.id).input.getAttribute('aria-invalid') === 'true');
+      byId(`${group}-total`).textContent = invalid ? '—' : calc.money(result.groups[group]);
+    }
+    currentTotal = invalidCount ? null : result.total;
+    byId('yhteissumma').textContent = invalidCount ? '—' : calc.money(result.total);
+    byId('base-total').textContent = base === null ? '—' : '− ' + calc.money(base);
+    byId('loomikseen').textContent = invalidCount || base === null ? '—' : calc.money(result.deposit);
+    byId('kopioiYhteissumma').disabled = invalidCount;
+    byId('breakdown').replaceChildren();
+    byId('breakdown-container').hidden = true;
+    const notice = byId('result-notice');
+    let message = '';
+    if (invalidCount) message = 'Tarkista korostetut kappalemäärät. Käytä kokonaislukuja väliltä 0–999 999.';
+    else if (base === null) message = 'Tarkista pohjakassan summa.';
+    else if (result.shortage > 0) message = `Pohjakassasta puuttuu ${calc.money(result.shortage)}. Tilitettävää ei ole.`;
+    else if (result.deposit > 0) {
+      const breakdown = calc.depositBreakdown(counts, result.deposit);
+      if (breakdown.status === 'exact') {
+        byId('breakdown-container').hidden = false;
+        for (const item of breakdown.items) {
+          const row = document.createElement('li');
+          const name = document.createElement('span');
+          const amount = document.createElement('span');
+          name.textContent = `${item.name} × ${item.count}`;
+          amount.textContent = calc.money(item.cents * item.count);
+          row.append(name, amount);
+          byId('breakdown').append(row);
+        }
+      } else if (breakdown.status === 'impossible') message = 'Tasan tätä pohjakassaa ei voi jättää syötetyillä seteleillä, kolikoilla ja täysillä rullilla. Vaihda rahaa tai muuta pohjakassaa. Rullia ei avata erittelyssä.';
+      else message = 'Summa on laskettu, mutta näin suuren summan tilityserittelyä ei voitu muodostaa. Tarkista erittely käsin.';
+    }
+    notice.textContent = message;
+    notice.hidden = !message;
+  }
+  baseInput.addEventListener('input', update);
+  baseInput.addEventListener('focus', () => { if (calc.parseMoney(baseInput.value) === 0) baseInput.value = ''; });
+  baseInput.addEventListener('blur', () => {
+    const cents = calc.parseMoney(baseInput.value);
+    if (cents !== null) baseInput.value = cents === 0 ? '' : (cents / 100).toFixed(2).replace('.', ',');
   });
-}
-
-function calculateTotal() {
-  let total = 0;
-  const currencyInputs = document.querySelectorAll('.currency-input');
-  currencyInputs.forEach(input => {
-    const amount = parseInt(input.querySelector('input').value, 10) || 0;
-    const value = parseFloat(input.querySelector('input').dataset.value);
-    total += amount * value;
+  for (const button of document.querySelectorAll('[data-base]')) button.addEventListener('click', () => { baseInput.value = button.dataset.base; update(); });
+  byId('laske').addEventListener('click', () => {
+    update();
+    const invalid = document.querySelector('input[aria-invalid="true"]');
+    if (invalid) { invalid.focus(); invalid.reportValidity(); return; }
+    announce('Laskelma ajan tasalla.');
   });
-
-  let pohjakassa = parseFloat(
-    (pohjakassaInput.value || '0').toString().replace(',', '.')
-  );
-
-  // Tarkista negatiivinen pohjakassa
-  if (isNaN(pohjakassa) || pohjakassa < 0) {
-    pohjakassa = 0;
-    pohjakassaInput.value = 0;
-  }
-
-  const loomikseen = total - pohjakassa;
-
-  yhteissummaSpan.textContent = `${total.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
-
-  // Haetaan aina uusin span, ei käytetä vanhaa viitettä
-  const loomikseenSpan = document.getElementById('loomikseen');
-  if (loomikseenSpan) {
-    loomikseenSpan.textContent = `${loomikseen.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
-  }
-
-  calculateChange();
-}
-
-function calculateChange() {
-  // Luetaan loomikseen-summa spanista ja parsitaan numeroksi
-  const loomikseenText = document.getElementById('loomikseen').textContent;
-  let loomikseen = parseFloat(
-    loomikseenText.replace(/[^0-9,]/g, '').replace(',', '.')
-  );
-
-  // Pyöristetään sentin tarkkuuteen, jotta liukulukubugit poistuvat
-  loomikseen = Math.round((loomikseen || 0) * 100) / 100;
-
-  let remainingAmount = loomikseen;
-  const change = {};
-
-  for (const currency of currencyData) {
-    const inputElement = document.getElementById(currency.name);
-    const amount = parseInt(inputElement.value, 10) || 0;
-
-    // Pidetään remainingAmount aina sentin tarkkuudella
-    remainingAmount = Math.round(remainingAmount * 100) / 100;
-
-    // Pieni "turvamarginaali" estää 0.8999999 / 0.1 → 8 -tilanteen
-    const maxAmount = Math.min(
-      amount,
-      Math.floor((remainingAmount + 1e-9) / currency.value)
-    );
-
-    if (maxAmount > 0) {
-      change[currency.name] = maxAmount;
-      remainingAmount -= maxAmount * currency.value;
+  byId('kopioiYhteissumma').addEventListener('click', async () => {
+    if (currentTotal === null) return;
+    const copyRevision = revision;
+    const value = (currentTotal / 100).toFixed(2).replace('.', ',');
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(value);
+      if (copyRevision === revision) announce('Yhteissumma kopioitu: ' + value + ' €');
+    } catch {
+      if (copyRevision === revision) announce('Kopiointi ei onnistunut. Voit valita ja kopioida yhteissumman.');
     }
-  }
-
-  let changeText = "";
-  for (const currencyName in change) {
-    if (change[currencyName] > 0) {
-      changeText += `${currencyName}: ${change[currencyName]} kpl<br>`;
-    }
-  }
-
-  const loomikseenDiv = document.getElementById('loomikseen').parentElement;
-  loomikseenDiv.innerHTML = `
-    <p>Loomikseen menee:</p>
-    <span id="loomikseen">
-      ${loomikseen.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-    </span>
-    <p>${changeText}</p>
-  `;
-}
+  });
+  byId('tyhjenna').addEventListener('click', () => { resetDialog.returnValue = ''; resetDialog.showModal(); });
+  resetDialog.addEventListener('close', () => {
+    if (resetDialog.returnValue !== 'reset') return;
+    for (const { input } of fields.values()) input.value = '';
+    baseInput.value = '';
+    byId('lahjakortit-hoidettu').checked = false;
+    update();
+    fields.get('note-500').input.focus();
+    announce('Laskuri tyhjennetty.');
+  });
+  update();
+})();
