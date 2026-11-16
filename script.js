@@ -86,10 +86,39 @@
     if (calc.parseCount(input.value) === null) { input.reportValidity(); return; }
     const inputs = Array.from(fields.values()).map(field => field.input);
     const next = inputs[inputs.indexOf(input) + 1];
-    if (next) { next.focus(); next.select(); }
+    if (next) focusNextCount(next);
     else {
-      byId('summary-title').focus();
+      byId('summary-title').focus({ preventScroll: autoCursor.checked });
+      if (autoCursor.checked) scrollPageTo(document.documentElement.scrollHeight);
       if (autoCursor.checked) announce('Kaikki raharivit käyty läpi. Laskelma on ajan tasalla.');
+    }
+  }
+
+  function scrollPageTo(top) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top, behavior: reducedMotion ? 'instant' : 'smooth' });
+  }
+  function focusNextCount(input) {
+    if (!autoCursor.checked) { input.focus(); input.select(); return; }
+    const row = input.closest('.currency-row');
+    const rect = row.getBoundingClientRect();
+    const viewport = window.visualViewport;
+    const visibleTop = viewport?.offsetTop || 0;
+    const visibleHeight = viewport?.height || window.innerHeight;
+    const visibleBottom = visibleTop + visibleHeight;
+    input.focus({ preventScroll: true });
+    input.setSelectionRange(0, input.value.length);
+    if (rect.bottom >= visibleBottom - 64) {
+      const rowTop = window.scrollY + rect.top;
+      const pageBottom = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      // Scroll all the way down when the active row will remain visible there.
+      // On a short viewport or with a mobile keyboard, reveal the next block instead.
+      const target = pageBottom <= rowTop - visibleTop - 16
+        ? document.documentElement.scrollHeight
+        : Math.max(0, rowTop - visibleTop - visibleHeight * 0.25);
+      scrollPageTo(target);
+    } else if (rect.top < visibleTop + 16) {
+      scrollPageTo(Math.max(0, window.scrollY + rect.top - visibleTop - visibleHeight * 0.25));
     }
   }
   function scheduleAdvance(input, event) {
@@ -107,7 +136,7 @@
     cancelAdvance();
     if (autoCursor.checked) {
       const firstEmpty = Array.from(fields.values()).find(({ input }) => !input.value.trim());
-      (firstEmpty || fields.values().next().value).input.focus();
+      focusNextCount((firstEmpty || fields.values().next().value).input);
     }
     highlightActiveRow();
   });
