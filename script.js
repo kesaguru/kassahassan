@@ -6,6 +6,10 @@
   const status = byId('action-status');
   const resetDialog = byId('reset-dialog');
   const fields = new Map();
+  const autoCursor = byId('automaattikursori');
+  let autoTimer;
+  let composing = false;
+  const autoDelay = 1200;
   let currentTotal = 0;
   let statusTimer;
   let revision = 0;
@@ -46,21 +50,70 @@
     row.append(label, input, total);
     targets[item.group].append(row);
     fields.set(item.id, { input, row, total });
-    input.addEventListener('input', update);
-    input.addEventListener('focus', () => { if (calc.parseCount(input.value) === 0) input.value = ''; });
+    input.addEventListener('input', event => { update(); scheduleAdvance(input, event); });
+    input.addEventListener('focus', () => {
+      cancelAdvance();
+      if (calc.parseCount(input.value) === 0) input.value = '';
+      highlightActiveRow();
+    });
     input.addEventListener('blur', () => {
+      cancelAdvance();
+      row.classList.remove('auto-cursor-active');
       const value = calc.parseCount(input.value);
       if (value !== null) input.value = value === 0 ? '' : String(value);
     });
+    input.addEventListener('compositionstart', () => { composing = true; cancelAdvance(); });
+    input.addEventListener('compositionend', () => { composing = false; scheduleAdvance(input); });
     input.addEventListener('keydown', event => {
+      cancelAdvance();
       if (event.key === 'Enter') {
         event.preventDefault();
-        const inputs = Array.from(fields.values()).map(field => field.input);
-        const next = inputs[inputs.indexOf(input) + 1];
-        if (next) next.focus(); else byId('laske').focus();
+        advanceFrom(input);
       }
     });
   }
+  function cancelAdvance() {
+    clearTimeout(autoTimer);
+    autoTimer = undefined;
+  }
+  function highlightActiveRow() {
+    for (const { input, row } of fields.values()) {
+      row.classList.toggle('auto-cursor-active', autoCursor.checked && document.activeElement === input);
+    }
+  }
+  function advanceFrom(input) {
+    cancelAdvance();
+    if (calc.parseCount(input.value) === null) { input.reportValidity(); return; }
+    const inputs = Array.from(fields.values()).map(field => field.input);
+    const next = inputs[inputs.indexOf(input) + 1];
+    if (next) { next.focus(); next.select(); }
+    else {
+      byId('laske').focus();
+      if (autoCursor.checked) announce('Kaikki raharivit käyty läpi. Laskelma on ajan tasalla.');
+    }
+  }
+  function scheduleAdvance(input, event) {
+    cancelAdvance();
+    if (!autoCursor.checked || composing || event?.isComposing || document.activeElement !== input) return;
+    const text = input.value.trim();
+    if (!text || calc.parseCount(text) === null || event?.inputType?.startsWith('delete')) return;
+    // A single zero explicitly skips a row; a zero within 10 or 100 does not.
+    if (text === '0') { advanceFrom(input); return; }
+    autoTimer = setTimeout(() => {
+      if (autoCursor.checked && document.activeElement === input && !resetDialog.open && document.visibilityState === 'visible') advanceFrom(input);
+    }, autoDelay);
+  }
+  autoCursor.addEventListener('change', () => {
+    cancelAdvance();
+    byId('auto-cursor-hint').hidden = !autoCursor.checked;
+    if (autoCursor.checked) {
+      const firstEmpty = Array.from(fields.values()).find(({ input }) => !input.value.trim());
+      (firstEmpty || fields.values().next().value).input.focus();
+    }
+    highlightActiveRow();
+  });
+  window.addEventListener('blur', cancelAdvance);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') cancelAdvance(); });
   function announce(message) {
     clearTimeout(statusTimer);
     status.textContent = message;
@@ -148,9 +201,10 @@
       if (copyRevision === revision) announce('Kopiointi ei onnistunut. Voit valita ja kopioida yhteissumman.');
     }
   });
-  byId('tyhjenna').addEventListener('click', () => { resetDialog.returnValue = ''; resetDialog.showModal(); });
+  byId('tyhjenna').addEventListener('click', () => { cancelAdvance(); resetDialog.returnValue = ''; resetDialog.showModal(); });
   resetDialog.addEventListener('close', () => {
     if (resetDialog.returnValue !== 'reset') return;
+    cancelAdvance();
     for (const { input } of fields.values()) input.value = '';
     baseInput.value = '';
     byId('lahjakortit-hoidettu').checked = false;

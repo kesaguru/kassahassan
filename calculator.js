@@ -15,12 +15,12 @@
     { id: 'coin-20', label: '20 snt', name: '20 snt kolikko', cents: 20, group: 'coins' },
     { id: 'coin-10', label: '10 snt', name: '10 snt kolikko', cents: 10, group: 'coins' },
     { id: 'coin-5', label: '5 snt', name: '5 snt kolikko', cents: 5, group: 'coins' },
-    { id: 'roll-2', label: '2 €', name: '2 € rulla (50 €)', cents: 5000, group: 'rolls', contents: '50 € / rulla' },
-    { id: 'roll-1', label: '1 €', name: '1 € rulla (25 €)', cents: 2500, group: 'rolls', contents: '25 € / rulla' },
-    { id: 'roll-50', label: '50 snt', name: '50 snt rulla (20 €)', cents: 2000, group: 'rolls', contents: '20 € / rulla' },
-    { id: 'roll-20', label: '20 snt', name: '20 snt rulla (8 €)', cents: 800, group: 'rolls', contents: '8 € / rulla' },
-    { id: 'roll-10', label: '10 snt', name: '10 snt rulla (4 €)', cents: 400, group: 'rolls', contents: '4 € / rulla' },
-    { id: 'roll-5', label: '5 snt', name: '5 snt rulla (2,50 €)', cents: 250, group: 'rolls', contents: '2,50 € / rulla' }
+    { id: 'roll-2', label: '2 € – rullat', name: '2 € rulla (50 €)', cents: 5000, group: 'rolls', contents: '50 € / rulla' },
+    { id: 'roll-1', label: '1 € – rullat', name: '1 € rulla (25 €)', cents: 2500, group: 'rolls', contents: '25 € / rulla' },
+    { id: 'roll-50', label: '50 snt – rullat', name: '50 snt rulla (20 €)', cents: 2000, group: 'rolls', contents: '20 € / rulla' },
+    { id: 'roll-20', label: '20 snt – rullat', name: '20 snt rulla (8 €)', cents: 800, group: 'rolls', contents: '8 € / rulla' },
+    { id: 'roll-10', label: '10 snt – rullat', name: '10 snt rulla (4 €)', cents: 400, group: 'rolls', contents: '4 € / rulla' },
+    { id: 'roll-5', label: '5 snt – rullat', name: '5 snt rulla (2,50 €)', cents: 250, group: 'rolls', contents: '2,50 € / rulla' }
   ];
   const countLimit = 999999;
   const moneyLimit = 999999999; // 9 999 999,99 EUR; keeps arithmetic well within safe integers.
