@@ -6,12 +6,12 @@
   <meta name="theme-color" content="#292d32">
   <meta name="description" content="KassaHassanin helppo kassanlaskuri. Laske setelit, kolikot ja kolikkorullat sekä pohjakassan jälkeen tilitettävä summa.">
   <title>KassaHassan – Kassanlaskuri</title>
-  <link rel="icon" href="favicon.ico?v=3.2" sizes="16x16 32x32 48x48 64x64">
-  <link rel="icon" type="image/png" href="assets/favicon.png?v=3.2" sizes="64x64">
+  <link rel="icon" href="favicon.ico?v=3.3" sizes="16x16 32x32 48x48 64x64">
+  <link rel="icon" type="image/png" href="assets/favicon.png?v=3.3" sizes="64x64">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=3.2">
-  <script src="calculator.js?v=3.2" defer></script>
-  <script src="script.js?v=3.2" defer></script>
+  <link rel="stylesheet" href="style.css?v=3.3">
+  <script src="calculator.js?v=3.3" defer></script>
+  <script src="script.js?v=3.3" defer></script>
 </head>
 <body>
   <div class="app">
@@ -35,11 +35,11 @@
           <section class="card gift-card"><label class="gift-check" for="lahjakortit-hoidettu"><input type="checkbox" id="lahjakortit-hoidettu"><span>Lahjakorttien tilitys hoidettu erikseen</span></label></section>
         </div>
         <aside class="summary-area" aria-label="Yhteenveto">
-          <section class="card result-card" aria-labelledby="summary-title"><h3 id="summary-title">Yhteenveto</h3><div class="total-line"><span>Käteistä yhteensä</span><button type="button" id="kopioiYhteissumma" class="copy-button" aria-label="Kopioi yhteissumma"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 9h11v12H9zM5 16H3V3h12v3"/></svg>Kopioi</button></div><output id="yhteissumma" class="grand-total">0,00 €</output><div class="deduction"><span>Pohjakassa</span><span id="base-total">− 0,00 €</span></div><div class="deposit"><div><span>Loomikseen menee</span><span class="deposit-dot" aria-hidden="true">↗</span></div><output id="loomikseen">0,00 €</output></div><p class="result-notice" id="result-notice" hidden></p><div id="breakdown-container" hidden><h4>Tilitettävät rahat</h4><ul id="breakdown"></ul></div><button type="button" id="laske" class="button button-primary">Laske summa <span aria-hidden="true">→</span></button><a href="https://digiapp.loomis.fi/webservice/loginForm" target="_blank" rel="noopener noreferrer" class="loomis-link"><img class="loomis-logo" src="assets/loomis-logo.svg" alt="" width="75" height="20"><span>Avaa Loomis</span><span aria-hidden="true">↗</span></a><p class="action-status" id="action-status" role="status" aria-live="polite"></p></section>
+          <section class="card result-card" aria-labelledby="summary-title"><h3 id="summary-title" tabindex="-1">Yhteenveto</h3><div class="total-line"><span>Käteistä yhteensä</span><button type="button" id="kopioiYhteissumma" class="copy-button" aria-label="Kopioi yhteissumma"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 9h11v12H9zM5 16H3V3h12v3"/></svg>Kopioi</button></div><output id="yhteissumma" class="grand-total">0,00 €</output><div class="deduction"><span>Pohjakassa</span><span id="base-total">− 0,00 €</span></div><div class="deposit"><div><span>Loomikseen menee</span><span class="deposit-dot" aria-hidden="true">↗</span></div><output id="loomikseen">0,00 €</output></div><p class="result-notice" id="result-notice" hidden></p><div id="breakdown-container" hidden><h4>Tilitettävät rahat</h4><ul id="breakdown"></ul></div><a href="https://digiapp.loomis.fi/webservice/loginForm" target="_blank" rel="noopener noreferrer" class="loomis-link"><img class="loomis-logo" src="assets/loomis-logo.svg" alt="" width="75" height="20"><span>Avaa Loomis</span><span aria-hidden="true">↗</span></a><p class="action-status" id="action-status" role="status" aria-live="polite"></p></section>
         </aside>
       </div>
     </main>
-    <footer><span>© 2025–2026 KassaHassan.com</span><span>N. Pitkänen & ChatGPT <span class="footer-divider">/</span> Versio 3.2</span></footer>
+    <footer><span>© 2025–2026 KassaHassan.com</span><span>N. Pitkänen & ChatGPT <span class="footer-divider">/</span> Versio 3.3</span></footer>
   </div>
   <dialog id="reset-dialog" aria-labelledby="reset-title"><form method="dialog"><h2 id="reset-title">Tyhjennetäänkö laskuri?</h2><p>Syötetyt määrät, pohjakassa ja lahjakorttien kuittaus tyhjennetään.</p><div class="dialog-actions"><button class="button button-quiet" value="cancel" autofocus>Peruuta</button><button class="button button-primary" value="reset">Tyhjennä laskuri</button></div></form></dialog>
 </body>

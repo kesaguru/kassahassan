@@ -88,7 +88,7 @@
     const next = inputs[inputs.indexOf(input) + 1];
     if (next) { next.focus(); next.select(); }
     else {
-      byId('laske').focus();
+      byId('summary-title').focus();
       if (autoCursor.checked) announce('Kaikki raharivit käyty läpi. Laskelma on ajan tasalla.');
     }
   }
@@ -183,12 +183,6 @@
     if (cents !== null) baseInput.value = cents === 0 ? '' : (cents / 100).toFixed(2).replace('.', ',');
   });
   for (const button of document.querySelectorAll('[data-base]')) button.addEventListener('click', () => { baseInput.value = button.dataset.base; update(); });
-  byId('laske').addEventListener('click', () => {
-    update();
-    const invalid = document.querySelector('input[aria-invalid="true"]');
-    if (invalid) { invalid.focus(); invalid.reportValidity(); return; }
-    announce('Laskelma ajan tasalla.');
-  });
   byId('kopioiYhteissumma').addEventListener('click', async () => {
     if (currentTotal === null) return;
     const copyRevision = revision;
